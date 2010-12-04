@@ -12,6 +12,10 @@ module Sham
       @@enabled = true
     end
     
+    def self.disable!
+      @@enabled = false
+    end
+    
     def self.enabled?
       !!@@enabled
     end
