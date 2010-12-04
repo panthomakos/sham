@@ -31,7 +31,8 @@ You can now "sham" your models and pass additional attributes at creation:
     
 You can use sham to build models without saving them as well:
 
-    User.sham! :build, :name => "I have not been saved"
+    user = User.sham! :build, :name => "I have not been saved"
+    user.save
     
 ## RSpec Example
 
@@ -81,3 +82,19 @@ These can be invoked using:
 
     Item.sham_alternate! :large, :quantity => 100
     Item.sham_alternate! :large, :build, :quantity => 0
+    
+## Nested Shamming
+
+You can nest shammed models inside others:
+
+    # in sham/line_item_sham.rb
+    class Sham::LineItemSham < Sham::Core
+        def self.options
+            { :item => Sham::Base.new(Item) }
+        end
+    end
+
+The nested shams will automatically be invoked and can be overridden during a sham:
+
+    LineItem.sham!
+    LineItem.sham! :item => Item.sham!(:weight => 100)

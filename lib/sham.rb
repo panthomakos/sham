@@ -76,7 +76,7 @@ module Sham
 
         def self.sham_alternate! type, *args
           options = (args.extract_options! || {})
-          Sham.add_options! self.name, options, "self.#{type}_options"
+          Sham.add_options! self.name, options, "#{type}_options"
           klass = (options.delete(:type) || self.name).constantize
           return klass.create(options) unless args[0] == :build
           return klass.new(options)
