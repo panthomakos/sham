@@ -20,7 +20,7 @@ Create a sham file for each of your models:
 To enable Sham in a particular environment, add the following to your environment.rb or test.rb file:
 
     config.after_initialize do
-        Sham.activate!
+        Sham::Config.activate!
     end
 
 You can now "sham" your models and pass additional attributes at creation:

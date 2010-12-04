@@ -4,16 +4,7 @@ module Sham
       {}
     end
   end
-  
-  def self.activate!
-    Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }
     
-    Sham.constants.each do |klass|
-      matcher = klass.match(/(.*)Sham/)
-      matcher[1].constantize.send(:include, Sham::Methods) unless matcher.blank?
-    end
-  end
-  
   class Base
     attr_accessor :klass, :options
 
@@ -24,6 +15,17 @@ module Sham
 
     def sham!
       @klass.sham! @options
+    end
+  end
+  
+  class Config
+    def self.activate!
+      Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }
+    
+      Sham.constants.each do |klass|
+        matcher = klass.match(/(.*)Sham/)
+        matcher[1].constantize.send(:include, Sham::Methods) unless matcher.blank?
+      end
     end
   end
 
