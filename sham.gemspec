@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pan Thomakos"]
   s.email       = ["pan.thomakos@gmail.com"]
-  s.homepage    = "http://rubygems.org/gems/sham"
+  s.homepage    = "http://github.com/panthomakos/sham"
   s.summary     = "sham-#{Sham::VERSION}"
   s.description = %q{Flexible factories for Ruby on Rails testing.}
 

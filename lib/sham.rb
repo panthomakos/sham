@@ -82,7 +82,7 @@ module Sham
   end
 end
 
-Sham::Config.enable!
+Sham::Config.enable! if ["test", "cucumber"].member?(ENV['RAILS_ENV'])
 
 if Sham::Config.enabled?
   Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }  
