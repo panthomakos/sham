@@ -22,6 +22,11 @@ To enable Sham in a particular environment, add the following to your environmen
     config.after_initialize do
         Sham::Config.activate!
     end
+    
+To enable Sham in cucumber, add the following to your features/support/env.rb file:
+
+    require 'sham'
+    Sham::Config.activate!    
 
 You can now "sham" your models and pass additional attributes at creation:
 
