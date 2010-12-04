@@ -5,26 +5,12 @@ module Sham
     end
   end
   
-  class Config
-    @@enabled = false
+  def self.activate!
+    Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }
     
-    def self.enable!
-      @@enabled = true
-    end
-    
-    def self.disable!
-      @@enabled = false
-    end
-    
-    def self.enabled?
-      !!@@enabled
-    end
-    
-    def self.activate!
-      Sham.constants.each do |klass|
-        matcher = klass.match(/(.*)Sham/)
-        matcher[1].constantize.send(:include, Sham::Methods) unless matcher.blank?
-      end
+    Sham.constants.each do |klass|
+      matcher = klass.match(/(.*)Sham/)
+      matcher[1].constantize.send(:include, Sham::Methods) unless matcher.blank?
     end
   end
   
@@ -84,11 +70,4 @@ module Sham
       end
     end
   end
-end
-
-Sham::Config.enable! if ["test", "cucumber"].member?(ENV['RAILS_ENV'])
-
-if Sham::Config.enabled?
-  Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }  
-  Sham::Config.activate!
 end
