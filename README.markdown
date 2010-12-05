@@ -11,7 +11,7 @@ Lightweight flexible factories for Ruby on Rails testing.
 Create a sham file for each of your models:
 
     # in sham/user_sham.rb
-    class Sham::UserSham < Sham::Core
+    class User::Sham
         def self.options
             { :name => "Sample User" }
         end
@@ -49,7 +49,7 @@ Here is an example of testing validations on an ActiveRecord::Base class using S
     end
 
     # in sham/item_sham.rb
-    class Sham::ItemSham < Sham::Core
+    class Item::Sham
         def self.options
             { :quantity => 1 }
         end
@@ -73,7 +73,7 @@ Here is an example of testing validations on an ActiveRecord::Base class using S
 You can add other alternative variations to the default "sham!" functionality:
 
     # in sham/item_sham.rb
-    class Sham::ItemSham < Sham::Core
+    class Item::Sham
         def self.options
             { :weight => 1.0 }
         end
@@ -93,7 +93,7 @@ These can be invoked using:
 You can nest shammed models inside others:
 
     # in sham/line_item_sham.rb
-    class Sham::LineItemSham < Sham::Core
+    class LineItem::Sham
         def self.options
             { :item => Sham::Base.new(Item) }
         end

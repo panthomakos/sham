@@ -1,10 +1,4 @@
 module Sham
-  class Core
-    def self.options
-      {}
-    end
-  end
-    
   class Base
     attr_accessor :klass, :options
 
@@ -46,7 +40,7 @@ module Sham
   end
 
   def self.add_options! klass, options = {}, options_string = "options"
-    eval("Sham::#{klass}Sham.#{options_string}").each do |key, value|
+    eval("#{klass}::Sham.#{options_string}").each do |key, value|
       options[key] = Sham.parse!(value) unless options.has_key?(key)
     end
   end
