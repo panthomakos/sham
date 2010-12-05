@@ -14,11 +14,9 @@ module Sham
   
   class Config
     def self.activate!
-      Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each{ |f| require f }
-    
-      Sham.constants.each do |klass|
-        matcher = klass.match(/(.*)Sham/)
-        matcher[1].constantize.send(:include, Sham::Methods) unless matcher.blank?
+      Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each do |f|
+        require f
+        (File.basename(f).match(/(.*)_sham.rb/)[1]).classify.constantize.send :include, Sham::Methods
       end
     end
   end
