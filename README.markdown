@@ -58,12 +58,12 @@ Here is an example of testing validations on an ActiveRecord::Base class using S
     # in spec/models/item_spec.rb
     describe Item do
         it "should not allow items with a negative price" do
-            item = Item.sham :build, :quantity => -1
+            item = Item.sham! :build, :quantity => -1
             item.valid?.should be_false
         end
         
         it "should allow items with a positive quantity" do
-            item = Item.sham :build, :quantity => 10
+            item = Item.sham! :build, :quantity => 10
             item.valid?.should be_true
         end
     end
