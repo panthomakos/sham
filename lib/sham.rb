@@ -14,7 +14,7 @@ module Sham
   
   class Config
     def self.activate!
-      Dir["#{RAILS_ROOT}/sham/*_sham.rb"].each do |f|
+      Dir["#{Rails.root}/sham/*_sham.rb"].each do |f|
         require f
         (File.basename(f).match(/(.*)_sham.rb/)[1]).classify.constantize.send :include, Sham::Methods
       end
