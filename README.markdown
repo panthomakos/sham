@@ -112,6 +112,6 @@ The nested shams will automatically be invoked and can be overridden during a sh
       ActiveSupport::Dependencies.clear
       ActiveRecord::Base.instantiate_observers
       Sham::Config.activate!
-    end
+    end if Spork.using_spork?
 
 This change will cause sham to be re-loaded so that you can continue to use it with Spork.
