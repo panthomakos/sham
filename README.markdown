@@ -22,23 +22,23 @@ To enable Sham in a particular environment, add the following to your environmen
     config.after_initialize do
         Sham::Config.activate!
     end
-    
+
 To enable Sham in cucumber, add the following to your features/support/env.rb file:
 
     require 'sham'
-    Sham::Config.activate!    
+    Sham::Config.activate!
 
 You can now "sham" your models and pass additional attributes at creation:
 
     User.sham!
     User.sham! :name => "New Name"
     User.sham! :age => 23
-    
+
 You can use sham to build models without saving them as well:
 
     user = User.sham! :build, :name => "I have not been saved"
     user.save
-    
+
 ## RSpec Example
 
 Here is an example of testing validations on an ActiveRecord::Base class using Sham and RSpec.
@@ -61,13 +61,13 @@ Here is an example of testing validations on an ActiveRecord::Base class using S
             item = Item.sham! :build, :quantity => -1
             item.valid?.should be_false
         end
-        
+
         it "should allow items with a positive quantity" do
             item = Item.sham! :build, :quantity => 10
             item.valid?.should be_true
         end
     end
-    
+
 ## Shamming Alternatives
 
 You can add other alternative variations to the default "sham!" functionality:
@@ -77,17 +77,17 @@ You can add other alternative variations to the default "sham!" functionality:
         def self.options
             { :weight => 1.0 }
         end
-        
+
         def self.large_options
             { :weight => 100.0 }
         end
     end
-    
+
 These can be invoked using:
 
     Item.sham_alternate! :large, :quantity => 100
     Item.sham_alternate! :large, :build, :quantity => 0
-    
+
 ## Nested Shamming
 
 You can nest shammed models inside others:
@@ -103,3 +103,15 @@ The nested shams will automatically be invoked and can be overridden during a sh
 
     LineItem.sham!
     LineItem.sham! :item => Item.sham!(:weight => 100)
+
+## Using Sham with Spork
+
+[Spork](https://rubygems.org/gems/spork) is a great gem that creates a Distributed Ruby environment that you can run your RSpec and Cucumber tests against. If you are using Rails it is often necessary to re-load your models and controllers between Spork test runs so that the Spork DRB picks up your latest model changes. This is usually accomplished using a Spork 'each run' block. This block of code gets executed before each test run. If you want to be able to use Sham with Spork all you need to do is add a Sham::Config.activate! line to this block after you have re-loaded your models and controllers.
+
+    Spork.each_run do
+      ActiveSupport::Dependencies.clear
+      ActiveRecord::Base.instantiate_observers
+      Sham::Config.activate!
+    end
+
+This change will cause sham to be re-loaded so that you can continue to use it with Spork.

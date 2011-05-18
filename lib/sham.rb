@@ -11,11 +11,11 @@ module Sham
       @klass.sham! @options
     end
   end
-  
+
   class Config
     def self.activate!
       Dir["#{Rails.root}/sham/*_sham.rb"].each do |f|
-        require f
+        load f
         (File.basename(f).match(/(.*)_sham.rb/)[1]).classify.constantize.send :include, Sham::Methods
       end
     end
@@ -34,7 +34,7 @@ module Sham
       value.sham!
     else
       value
-    end    
+    end
   end
 
   def self.add_options! klass, options = {}, options_string = "options"
