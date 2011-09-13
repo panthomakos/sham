@@ -14,11 +14,32 @@ module Sham
 
   class Config
     def self.activate!
-      Dir["#{Rails.root}/sham/*_sham.rb"].each do |f|
+      Dir["#{Rails.root}/sham/**/*.rb"].each do |f|
         load f
-        (File.basename(f).match(/(.*)_sham.rb/)[1]).classify.constantize.send :include, Sham::Methods
       end
     end
+
+    attr_accessor :klass, :name
+
+    def initialize klass, name
+      self.klass = klass
+      self.name = name
+    end
+
+    def attributes &attributes
+      klass.add_sham_attributes(name, attributes)
+    end
+
+    def empty
+      klass.add_sham_attributes(name, Proc.new{ Hash.new() })
+    end
+  end
+
+  def self.config klass, name = :default
+    unless klass.include?(Sham::Shammable)
+      klass.send(:include, Sham::Shammable)
+    end
+    yield(Sham::Config.new(klass, name))
   end
 
   def self.string!
@@ -37,30 +58,45 @@ module Sham
     end
   end
 
-  def self.add_options! klass, options = {}, options_string = "options"
-    eval("#{klass}::Sham.#{options_string}").each do |key, value|
+  def self.add_options! klass, options = {}, attributes
+    attributes.call.each do |key, value|
       options[key] = self.parse!(value) unless options.has_key?(key)
     end
   end
 
-  module Methods
-    def self.included klass
-      klass.class_eval do
-        def self.sham! *args
-          options = (args.extract_options! || {})
-          ::Sham.add_options! self.name, options
-          klass = (options.delete(:type) || self.name).constantize
-          return klass.create(options) unless args[0] == :build
-          return klass.new(options)
+  module Shammable
+    def self.included(klass)
+      klass.extend(ClassMethods)
+
+      klass.class_eval <<-EVAL
+        def self.add_sham_attributes name, attributes
+          @@sham_attributes ||= {}
+          @@sham_attributes[name] = attributes
         end
 
-        def self.sham_alternate! type, *args
-          options = (args.extract_options! || {})
-          ::Sham.add_options! self.name, options, "#{type}_options"
-          klass = (options.delete(:type) || self.name).constantize
-          return klass.create(options) unless args[0] == :build
-          return klass.new(options)
+        def self.sham_attributes
+          @@sham_attributes
         end
+      EVAL
+    end
+
+    module ClassMethods
+      def sham! *args
+        options = (args.extract_options! || {})
+        type = (args[0] == :build ? args[1] : args[0]) || :default
+        build = args[0] == :build || args[1] == :build
+
+        ::Sham.add_options! self.name, options, sham_attributes[type]
+        klass = (options.delete(:type) || self.name).constantize
+        if build
+          klass.new(options)
+        else
+          klass.create(options)
+        end
+      end
+
+      def sham_alternate! type, *args
+        sham!(type, *args)
       end
     end
   end
