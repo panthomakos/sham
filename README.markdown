@@ -1,6 +1,6 @@
 # Sham
 
-Lightweight flexible factories for Ruby on Rails testing.
+Lightweight flexible factories for Ruby and Rails testing.
 
 ## Installation
 
@@ -25,6 +25,13 @@ your application.rb or test.rb file:
     config.after_initialize do
       Sham::Config.activate!
     end
+
+If you are not using Rails you can activate all of your shams by specifying a
+path under which your shams are defined. For instance, this command will load
+all Ruby files under the `/my/project/path/sham` directory and and all
+subdirectories.
+
+    Sham::Config.activate!('/my/project/path')
 
 To enable all Shams in cucumber, add the following to your
 features/support/env.rb file:

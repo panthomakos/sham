@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email       = ["pan.thomakos@gmail.com"]
   s.homepage    = "http://github.com/panthomakos/sham"
   s.summary     = "sham-#{Sham::VERSION}"
-  s.description = %q{Lightweight flexible factories for Ruby on Rails testing.}
+  s.description = %q{Lightweight flexible factories for Ruby and Rails testing.}
 
   s.rubyforge_project = "sham"
 
@@ -20,5 +20,6 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.markdown", "License.txt"]
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.add_dependency('rails', '>= 3.0.1')
+
+  s.add_development_dependency('rspec')
 end
