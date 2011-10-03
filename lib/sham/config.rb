@@ -11,7 +11,8 @@ module Sham
   class Config
     def self.activate! root = nil
       root = Rails.root if root.nil? && defined?(Rails.root)
-      Dir["#{root}/sham/**/*.rb"].each{ |f| load(f) }
+      root = File.join(root, 'sham', '**', '*.rb')
+      Dir[root].each{ |f| load(f) }
     end
 
     attr_accessor :klass, :name
