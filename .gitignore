@@ -3,5 +3,6 @@ pkg/*
 *.gem
 *.swp
 .bundle
+.rvmrc
 Gemfile.lock
 doc
