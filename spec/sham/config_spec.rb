@@ -38,7 +38,7 @@ describe Sham::Config do
 
     expect {
       Sham.config(BiggestCompany){ |c| c.empty }
-    }.to change{ BiggestCompany.respond_to?(:sham_alternate!) }
+    }.to change{ BiggestCompany.respond_to?(:sham_alternate!) } \
       .from(false).to(true)
   end
 
@@ -55,7 +55,7 @@ describe Sham::Config do
 
       Sham.config(PowerUser){ |c| c.empty }
 
-      User.sham_config(:default)
+      User.sham_config(:default) \
         .should_not == PowerUser.sham_config(:default)
     end
 
@@ -96,7 +96,7 @@ describe Sham::Config do
     end
 
     it 'should sham alternatives with alternative options' do
-      User.sham!(:super)[:identifier]
+      User.sham!(:super)[:identifier] \
         .should_not == User.sham![:identifier]
     end
 
@@ -109,10 +109,10 @@ describe Sham::Config do
     it 'should allow nested shams to be overwritten' do
       profile = Profile.new
 
-      User.sham!(:with_profile, profile: profile)[:profile]
+      User.sham!(:with_profile, :profile => profile)[:profile] \
         .should == profile
 
-      User.sham!(:with_profile)[:profile]
+      User.sham!(:with_profile)[:profile] \
         .should_not == profile
     end
   end

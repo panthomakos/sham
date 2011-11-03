@@ -12,7 +12,8 @@ module Sham
       end
     end
 
-    def add_options! klass, options = {}, attributes
+    def add_options! klass, options, attributes
+      options ||= {}
       attributes.call.each do |key, value|
         options[key] = parse!(value) unless options.has_key?(key)
       end

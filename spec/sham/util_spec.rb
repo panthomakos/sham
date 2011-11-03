@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Sham::Util do
   context '#extract_options!' do
-    let(:ary){ [1, 2, 3, 4, opt: 'arg', opt2: 'arg'] }
+    let(:ary){ [1, 2, 3, 4, {:opt => 'arg', :opt2 => 'arg'}] }
 
     it 'should alter the original array' do
       expect {

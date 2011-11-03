@@ -22,16 +22,16 @@ end
 Sham.config(User) do |c|
   c.attributes do
     {
-      name: Sham.string!,
-      email: "#{Sham.string!}@gmail.com",
-      identifier: 100
+      :name => Sham.string!,
+      :email => "#{Sham.string!}@gmail.com",
+      :identifier => 100
     }
   end
 end
 
 Sham.config(User, :super) do |c|
   c.attributes do
-    { identifier: 200 }
+    { :identifier => 200 }
   end
 end
 
@@ -39,7 +39,7 @@ class Profile < User; end
 
 Sham.config(User, :with_profile) do |c|
   c.attributes do
-    { profile: Sham::Base.new(Profile) }
+    { :profile => Sham::Base.new(Profile) }
   end
 end
 Sham.config(Profile){ |c| c.empty }
