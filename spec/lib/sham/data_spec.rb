@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'sham/data'
 
 describe Sham do
   context '#string!' do

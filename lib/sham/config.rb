@@ -1,10 +1,14 @@
+require 'sham/shammable'
+require 'sham/config/attributes'
+require 'sham/config/empty'
+
 module Sham
   class << self
     def config klass, name = :default
       unless (class << klass; self; end).include?(Sham::Shammable)
         klass.extend(Sham::Shammable)
       end
-      yield(Sham::Config.new(klass, name))
+      yield(Sham::Config.new(klass, name)) if block_given?
     end
   end
 
@@ -20,12 +24,12 @@ module Sham
       @name = name
     end
 
-    def attributes &config
-      @klass.add_sham_config(@name, config)
+    def attributes(&config)
+      @klass.add_sham_config(@name, Sham::Config::Attributes.new(config))
     end
 
     def empty
-      @klass.add_sham_config(@name, Proc.new{ Hash.new() })
+      @klass.add_sham_config(@name, Sham::Config::Empty.new)
     end
   end
 end

@@ -1,14 +1,12 @@
 module Sham
   class Base
-    attr_accessor :klass, :options
-
-    def initialize klass, options = {}
+    def initialize klass, *args
       @klass = klass
-      @options = options
+      @args = args
     end
 
     def sham!
-      @klass.sham!(@options)
+      @klass.sham!(*@args)
     end
   end
 end

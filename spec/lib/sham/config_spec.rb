@@ -1,51 +1,59 @@
-require 'spec_helper'
-
-class Company < Object; end
+require 'sham/config'
 
 describe Sham::Config do
-  it 'activates shams in the root directory' do
-    begin
-      expect {
-        described_class.activate!(SPEC_DIR)
-      }.to change{ defined?(Employee) }.from(nil).to('constant')
-    ensure
-      Object.send(:remove_const, :Employee) rescue nil
+  let(:parent) do
+    Object.send(:remove_const, :Parent) if defined?(Parent)
+    class Parent; end
+    Parent
+  end
+  let(:child) do
+    Object.send(:remove_const, :Child) if defined?(Child)
+    class Child < parent; end
+    Child
+  end
+
+  context '#activate!' do
+    it 'activates shams in the root directory' do
+      begin
+        expect {
+          described_class.activate!('spec/root')
+        }.to change{ defined?(Employee) }.from(nil).to('constant')
+      ensure
+        Object.send(:remove_const, :Employee) rescue nil
+      end
     end
   end
 
-  it 'extends the class with Sham::Shammable' do
-    expect { Sham.config(Company){ |c| c.empty } } \
-      .to change{ (class << Company; self; end).include?(Sham::Shammable) } \
-      .from(false).to(true)
+  context '#config' do
+    it 'extends the class with Sham::Shammable' do
+      expect { Sham.config(parent) } \
+        .to change{ (class << parent; self; end).include?(Sham::Shammable) } \
+        .from(false).to(true)
+    end
+
+    it 'only extends with Sham::Shammable once' do
+      Sham.config(parent)
+      parent.should_receive(:extend).never
+
+      Sham.config(parent, :alternate)
+    end
+
+    it 'defines sham! on the class' do
+      expect { Sham.config(parent) } \
+        .to change{ parent.respond_to?(:sham!) }.from(false).to(true)
+    end
+
+    it 'defines sham_alternate! on the class' do
+      expect { Sham.config(parent) } \
+        .to change{ parent.respond_to?(:sham_alternate!) } \
+        .from(false).to(true)
+    end
   end
 
-  it 'only extends with Sham::Shammable once' do
-    Company.should_receive(:extend).never
-
-    Sham.config(Company, :alternate){ |c| c.empty }
-  end
-
-  it 'defines sham! on the class' do
-    class BiggerCompany < Object; end
-
-    expect {
-      Sham.config(BiggerCompany){ |c| c.empty }
-    }.to change{ BiggerCompany.respond_to?(:sham!) }.from(false).to(true)
-  end
-
-  it 'defines sham_alternate! on the class' do
-    class BiggestCompany < Object; end
-
-    expect {
-      Sham.config(BiggestCompany){ |c| c.empty }
-    }.to change{ BiggestCompany.respond_to?(:sham_alternate!) } \
-      .from(false).to(true)
-  end
-
-  context 'shams' do
-    it 'are individual to every class' do
-      class A; def initialize(*args); end; end
-      class B; def initialize(*args); end; end
+  context 'configured sham' do
+    it 'should be individual to every class' do
+      class A; end
+      class B; end
 
       a = { :attribute => 'a' }
       b = { :attribute => 'b' }
@@ -61,76 +69,85 @@ describe Sham::Config do
     end
 
     it 'carries over to subclasses' do
-      class SuperUser < User; end
-
-      SuperUser.should respond_to(:sham!)
-      SuperUser.sham![:identifier].should == User.sham![:identifier]
+      Sham.config(parent)
+      child.should respond_to(:sham!)
     end
 
-    it 'allows subclasses to define their own shams' do
-      class PowerUser < User; end
+    it 'allows subclasses to define their own' do
+      Sham.config(parent){ |c| c.empty }
+      Sham.config(child){ |c| c.empty }
 
-      Sham.config(PowerUser){ |c| c.empty }
-
-      User.sham_config(:default) \
-        .should_not == PowerUser.sham_config(:default)
+      parent.sham_config(:default) \
+        .should_not == child.sham_config(:default)
     end
 
     it 'defaults to calling #new when #create is not present' do
-      class SimpleUser
-        def initialize(options = {}); end
-      end
+      Sham.config(parent){ |c| c.empty }
 
-      Sham.config(SimpleUser){ |c| c.empty }
+      parent.should_receive(:new).once
 
-      SimpleUser.should_receive(:new).once
-
-      SimpleUser.sham!
+      parent.sham!
     end
 
     it 'allows shams to be built instead of created' do
-      User.should_receive(:create).never
+      Sham.config(parent){ |c| c.empty }
+      parent.should_receive(:create).never
+      parent.should_receive(:new).once
 
-      User.sham!(:build)
+      parent.sham!(:build)
     end
 
     it 'creates shams by default' do
-      User.should_receive(:create).once
+      Sham.config(parent){ |c| c.empty }
+      parent.stub(:create)
+      parent.should_receive(:create).once
 
-      User.sham!
+      parent.sham!
     end
 
-    it 'allows alternate shams to be built' do
-      User.should_receive(:create).never
+    context 'alternative shams' do
+      let(:other){ { :id => 1 } }
 
-      User.sham!(:build, :super)
+      before do
+        Sham.config(parent){ |c| c.empty }
+        Sham.config(parent, :other){ |c| c.attributes{ other } }
+      end
+
+      it 'builds them' do
+        parent.should_receive(:new).with(other)
+
+        parent.sham!(:build, :other)
+      end
+
+      it 'creates them' do
+        parent.should_receive(:create).with(other)
+
+        parent.sham!(:other)
+      end
     end
 
-    it 'allows alternate shams to be created' do
-      User.should_receive(:create).once
+    context 'nested shams' do
+      before do
+        parent.stub(:create)
 
-      User.sham!(:super)
-    end
+        Sham.config(parent) do |c|
+          c.attributes do
+            { :child => Sham::Base.new(child) }
+          end
+        end
+      end
 
-    it 'shams alternatives with alternative options' do
-      User.sham!(:super)[:identifier] \
-        .should_not == User.sham![:identifier]
-    end
+      it 'calls them' do
+        child.should_receive(:sham!)
 
-    it 'performs nested shams' do
-      Profile.should_receive(:sham!).once
+        parent.sham!
+      end
 
-      User.sham!(:with_profile)
-    end
-
-    it 'allows nested shams to be overwritten' do
-      profile = Profile.new
-
-      User.sham!(:with_profile, :profile => profile)[:profile] \
-        .should == profile
-
-      User.sham!(:with_profile)[:profile] \
-        .should_not == profile
+      it 'prefers passed options' do
+        other_child = stub
+        parent.should_receive(:create).with({ :child => other_child })
+        parent.sham!(:child => other_child)
+      end
     end
   end
 end

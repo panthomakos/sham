@@ -1,11 +1,3 @@
-class Employee < User
-end
+class Employee; end
 
-Sham.config(Employee) do |c|
-  c.attributes do
-    {
-      :name => "Employee #{Sham.string!}",
-      :email => "#{Sham.string!}@company.com"
-    }
-  end
-end
+Sham.config(Employee){ |c| c.empty }

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'sham/util'
 
 describe Sham::Util do
   context '#extract_options!' do
@@ -30,6 +30,11 @@ describe Sham::Util do
   end
 
   context '#constantize' do
+    before do
+      Object.send(:remove_const, :User) if defined?(User)
+      class User; end
+    end
+
     it 'should raise a NameError when the constant is not valid' do
       expect {
         described_class.constantize('user')
