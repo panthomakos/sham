@@ -169,3 +169,5 @@ line to this block after you have re-loaded your models and controllers.
 
 This change will cause sham to be re-loaded so that you can continue to use it
 with Spork.
+
+## Build Status [![Build Status](https://secure.travis-ci.org/panthomakos/sham.png)](http://travis-ci.org/panthomakos/sham)
