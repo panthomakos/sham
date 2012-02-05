@@ -21,43 +21,33 @@ module Sham
   end
 
   module Shammable
-    def self.included(klass)
-      klass.extend(ClassMethods)
+    def add_sham_config(name, config)
+      @sham_configs ||= {}
+      @sham_configs[name] = config
+    end
 
-      (class << klass; self; end).instance_eval do
-        attr_accessor :sham_configs
-
-        define_method(:add_sham_config) do |name, config|
-          self.sham_configs ||= {}
-          self.sham_configs[name] = config
-        end
-
-        define_method(:sham_config) do |name|
-          if sham_configs && sham_configs.has_key?(name)
-            sham_configs[name]
-          else
-            superclass.sham_config(name)
-          end
-        end
+    def sham_config(name)
+      if @sham_configs && @sham_configs.has_key?(name)
+        @sham_configs[name]
+      else
+        superclass.sham_config(name)
       end
     end
 
-    module ClassMethods
-      def sham! *args
-        options = Sham::Util.extract_options!(args)
-        type = (args[0] == :build ? args[1] : args[0]) || :default
-        build = args[0] == :build || args[1] == :build
+    def sham! *args
+      options = Sham::Util.extract_options!(args)
+      type = (args[0] == :build ? args[1] : args[0]) || :default
+      build = args[0] == :build || args[1] == :build
 
-        ::Sham.add_options!(name, options, sham_config(type))
-        klass = Sham::Util.constantize(options.delete(:type) || self.name)
-        if build || !klass.respond_to?(:create)
-          klass.new(options)
-        else
-          klass.create(options)
-        end
+      ::Sham.add_options!(name, options, sham_config(type))
+      klass = Sham::Util.constantize(options.delete(:type) || self.name)
+      if build || !klass.respond_to?(:create)
+        klass.new(options)
+      else
+        klass.create(options)
       end
-
-      alias :sham_alternate! :sham!
     end
+
+    alias :sham_alternate! :sham!
   end
 end

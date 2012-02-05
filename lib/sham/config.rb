@@ -1,8 +1,8 @@
 module Sham
   class << self
     def config klass, name = :default
-      unless klass.include?(Sham::Shammable)
-        klass.send(:include, Sham::Shammable)
+      unless (class << klass; self; end).include?(Sham::Shammable)
+        klass.extend(Sham::Shammable)
       end
       yield(Sham::Config.new(klass, name))
     end
@@ -15,19 +15,17 @@ module Sham
       Dir[root].each{ |f| load(f) }
     end
 
-    attr_accessor :klass, :name
-
     def initialize klass, name
-      self.klass = klass
-      self.name = name
+      @klass = klass
+      @name = name
     end
 
     def attributes &config
-      klass.add_sham_config(name, config)
+      @klass.add_sham_config(@name, config)
     end
 
     def empty
-      klass.add_sham_config(name, Proc.new{ Hash.new() })
+      @klass.add_sham_config(@name, Proc.new{ Hash.new() })
     end
   end
 end
