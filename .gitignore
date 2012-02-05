@@ -2,6 +2,7 @@ bin/
 pkg/*
 *.gem
 *.swp
+*.rbc
 .bundle
 .rvmrc
 Gemfile.lock
