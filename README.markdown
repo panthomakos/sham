@@ -8,7 +8,7 @@ Lightweight flexible factories for Ruby and Rails testing.
 
 ## Getting Started
 
-Create a sham file for any of your models or classes.
+Create a configuration file for any of your models or classes.
 
     # sham/user.rb
     Sham.config(User) do |c|
@@ -17,34 +17,34 @@ Create a sham file for any of your models or classes.
       end
     end
 
-To load your shams you can either include the sham file directly, or define
-your shams inline in your test file. Sham also provides a helper function to
+To load your shams you can either include a configuration file directly, or
+define your shams inline in your test file. Sham provides a helper function to
 load all files under the sham directory. To load all your shams in a Rails
-project you could add the following to your application.rb or test.rb file.
+project you could add the following to your `test.rb` file.
 
     config.after_initialize do
       Sham::Config.activate!
     end
 
-If you are not using Rails you can activate all of your shams by specifying a
-path. For instance, this command will load all Ruby files under the
+If you aren't using Rails you can activate all of your shams by specifying a
+configuration path. This command will load all Ruby files under the
 `/my/project/path/sham` directory.
 
     Sham::Config.activate!('/my/project/path')
 
-To enable all Shams in cucumber, modify your `features/support/env.rb` file.
+To load all your shams in cucumber, modify your `features/support/env.rb` file.
 
     require 'sham'
     Sham::Config.activate!
 
-You can now "sham" your models with thier default options, or pass additional
+You can now "sham" your models with their default options, or pass additional
 attributes you would like to overwrite or add during creation.
 
     User.sham!
     User.sham!(:name => "New Name")
     User.sham!(:age => 23)
 
-You can use sham to build models without automatically saving using the `:build`
+Sham can also create objects without automatically saving using the `:build`
 option.
 
     user = User.sham!(:build, :name => "I have not been saved")
@@ -52,7 +52,7 @@ option.
 
 ## RSpec Example
 
-Here is an example of testing validations on an ActiveRecord::Base class using
+Here is an example of testing validations on an `ActiveRecord::Base` class using
 Sham and RSpec:
 
     # in app/models/item.rb
@@ -98,7 +98,7 @@ attribute hashes. For example, if you had a `User` class:
       end
     end
 
-You could create a paramter sham like this:
+You could create a parameter sham like this:
 
     # in sham/user.rb
     Sham.config(User) do |c|
@@ -113,11 +113,12 @@ And invoke it like this:
     User.sham!('Jane', 'Doe')
 
 Unlike attribute shams, if arguments are passed to a parameter sham, those
-arguments are the only ones passed to the constructor.
+arguments are the only ones passed to the constructor and the parameters are
+not merged with the default ones.
 
 ## Alternative Shams
 
-Sometimes you want more than one way to configure a factory object. Sham allows
+Sometimes you want to be able to configure more than one factory. Sham allows
 you to easily define alternative sham configurations like this:
 
     # in sham/item.rb
@@ -133,7 +134,7 @@ you to easily define alternative sham configurations like this:
       end
     end
 
-Alternative shams can be invoked by passing thier name into the `sham!` command.
+Alternative shams can be invoked by passing their name into the `sham!` command.
 
     Item.sham!(:small, :quantity => 100)
     Item.sham!(:large, :build, :quantity => 0)
@@ -205,8 +206,9 @@ against. If you are using Rails it is often necessary to re-load your models and
 controllers between Spork test runs so that the Spork DRB picks up your latest
 model changes. This is usually accomplished using a Spork 'each run' block. This
 block of code gets executed before each test run. If you want to be able to
-reload your shams with Spork all you need to do is add a Sham::Config.activate!
-line to this block after you have re-loaded your models and controllers.
+reload your shams with Spork all you need to do is add a
+`Sham::Config.activate!` line to this block after you have re-loaded your models
+and controllers.
 
     Spork.each_run do
       Sham::Config.activate!
