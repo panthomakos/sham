@@ -17,28 +17,29 @@ Create a configuration file for any of your models or classes.
       end
     end
 
-To load your shams you can either include a configuration file directly, or
-define your shams inline in your test file. Sham provides a helper function to
-load all files under the sham directory. To load all your shams in a Rails
-project you could add the following to your `test.rb` file.
+To load a shams you can either include the configuration file directly, or
+define the sham inline in a test file. Sham provides a helper function to
+load all files under the sham directory. If you are using Rails you can load
+all your shams by adding the following to `config/environments/test.rb`.
 
     config.after_initialize do
       Sham::Config.activate!
     end
 
 If you aren't using Rails you can activate all of your shams by specifying a
-configuration path. This command will load all Ruby files under the
+configuration path. The following command will load all Ruby files under the
 `/my/project/path/sham` directory.
 
     Sham::Config.activate!('/my/project/path')
 
-To load all your shams in cucumber, modify your `features/support/env.rb` file.
+To load all your shams in Cucumber, modify your `features/support/env.rb` file.
 
     require 'sham'
     Sham::Config.activate!
 
-You can now "sham" your models with their default options, or pass additional
-attributes you would like to overwrite or add during creation.
+You can now "sham" your models! When you sham a model it is created with the
+default options you specified in the config file. But you can also overwrite
+any number of them and add additional attributes on a case-by-case basis.
 
     User.sham!
     User.sham!(:name => "New Name")
@@ -52,22 +53,21 @@ option.
 
 ## RSpec Example
 
-Here is an example of testing validations on an `ActiveRecord::Base` class using
-Sham and RSpec:
+The following is an example of an RSpec test for `ActiveRecord` validations.
 
-    # in app/models/item.rb
+    # app/models/item.rb
     class Item < ActiveRecord::Base
       validates_numericality_of :quantity, :greater_than => 0
     end
 
-    # in sham/item.rb
+    # sham/item.rb
     Sham.config(Item) do |c|
       c.attributes do
         { :quantity => 1 }
       end
     end
 
-    # in spec/models/item_spec.rb
+    # spec/models/item_spec.rb
     require 'spec_helper'
     require './sham/item'
 
@@ -83,12 +83,12 @@ Sham and RSpec:
       end
     end
 
-## Parameter Shams
+## Parameter/Argument Shams
 
-You can also define shams for initializers that take parameters instead of
-attribute hashes. For example, if you had a `User` class:
+You can also define shams for initializers that take a list of arguments
+instead of an attribute hash. For example, if you had a `User` class.
 
-    # in lib/user.rb
+    # lib/user.rb
     class User
       attr_accessor :first, :last
 
@@ -100,7 +100,7 @@ attribute hashes. For example, if you had a `User` class:
 
 You could create a parameter sham like this:
 
-    # in sham/user.rb
+    # sham/user.rb
     Sham.config(User) do |c|
       c.parameters do
         ['John', 'Doe']
@@ -114,14 +114,14 @@ And invoke it like this:
 
 Unlike attribute shams, if arguments are passed to a parameter sham, those
 arguments are the only ones passed to the constructor and the parameters are
-not merged with the default ones.
+not merged with the defaults.
 
-## Alternative Shams
+## Multiple Sham Configurations
 
-Sometimes you want to be able to configure more than one factory. Sham allows
-you to easily define alternative sham configurations like this:
+Sometimes you want to be able to configure more than one sham per class. Sham
+makes it easy to define alternative configurations by specifying a config name.
 
-    # in sham/item.rb
+    # sham/item.rb
     Sham.config(Item, :small) do |c|
       c.attributes do
         { :weight => 10.0 }
@@ -134,7 +134,8 @@ you to easily define alternative sham configurations like this:
       end
     end
 
-Alternative shams can be invoked by passing their name into the `sham!` command.
+Alternative sham configurations can be invoked by passing their name into the
+`sham!` command.
 
     Item.sham!(:small, :quantity => 100)
     Item.sham!(:large, :build, :quantity => 0)
@@ -144,10 +145,8 @@ Alternative shams can be invoked by passing their name into the `sham!` command.
 Sometimes you simply want to be able to sham an object without passing any
 default options. Sham makes this easy by providing an `empty` configuration.
 
-    # in sham/user.rb
-    Sham.config(User) do |c|
-      c.empty
-    end
+    # sham/user.rb
+    Sham.config(User){ |c| c.empty }
 
 Empty configurations behave just like empty hashes. That means you can simply
 pass your own attributes in when shamming the class.
@@ -155,36 +154,36 @@ pass your own attributes in when shamming the class.
     User.sham!
     User.sham!(:name => 'John Doe')
 
-For parameter based initializers you can create empty configurations using the
+For parameter based shams you can create empty configurations using the
 `no_args` option.
 
     Sham.config(User){ |c| c.no_args }
 
-## Nested Shamming
+## Nested Shams
 
 Sometimes you want one sham to be responsible for creating additional shams when
 it is initialized. For instance, a `LineItem` might require an `Item` to be
 considered a valid object. Sham makes this kind of nested sham very easy to
 configure, and allows you to overwrite the 'sub-object' during initialization.
 
-    # in sham/line_item_sham.rb
+    # sham/line_item_sham.rb
     Sham.config(LineItem) do |c|
       c.attributes do
         { :item => Sham::Nested.new(Item) }
       end
     end
 
-The nested shams will automatically be invoked and can be overwritten during
-initialization:
+The nested shams will automatically be created and can also be overwritten
+during initialization:
 
     LineItem.sham!
     LineItem.sham!(:item => Item.sham!(:weight => 100))
 
 
-## Subclass Shams
+## Sham Inheritance
 
-Sham plays well with subclassing. That means shams defined on parent classes
-will be available to child classes as well:
+Sham plays well with inheritance. That means shams defined on parent classes
+will be available to child classes as well.
 
     Sham.config(Person) do |c|
       c.empty
@@ -216,6 +215,6 @@ and controllers.
 
 This change will cause sham to be re-loaded so that you can continue to use it
 with Spork. If you take this approach it's important to remove the call to
-`Sham::Config.activate!` from your `test.rb` or `application.rb` file.
+`Sham::Config.activate!` from your `test.rb` file.
 
 ## Build Status [![Build Status](https://secure.travis-ci.org/panthomakos/sham.png)](http://travis-ci.org/panthomakos/sham)
