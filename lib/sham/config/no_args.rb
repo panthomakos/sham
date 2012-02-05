@@ -3,15 +3,15 @@ require 'sham/util'
 
 module Sham
   class Config
-    class Empty < Base
+    class NoArgs < Base
       def options(*args)
-        @options = ::Sham::Util.extract_options!(args)
+        @args = args
 
         self
       end
 
       def args
-        [@options]
+        @args
       end
     end
   end

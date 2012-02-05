@@ -1,4 +1,5 @@
 require 'sham/config/base'
+require 'sham/util'
 
 module Sham
   class Config
@@ -7,8 +8,8 @@ module Sham
         @config = config
       end
 
-      def options(options = {})
-        @options = options
+      def options(*args)
+        @options = ::Sham::Util.extract_options!(args)
 
         @config.call.each do |key, value|
           @options[key] = parse!(value) unless @options.has_key?(key)

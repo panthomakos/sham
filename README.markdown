@@ -8,44 +8,44 @@ Lightweight flexible factories for Ruby and Rails testing.
 
 ## Getting Started
 
-Create a sham file for each of your models:
+Create a sham file for any of your models or classes.
 
-    # in sham/user.rb
+    # sham/user.rb
     Sham.config(User) do |c|
       c.attributes do
         { :name => "Sample User" }
       end
     end
 
-To load your shams you can either include the files individually, or define
-your shams directly in your test file. Sham also provides a helper function to
-load shams under the sham directory. To load all your shams add the following to
-your application.rb or test.rb file:
+To load your shams you can either include the sham file directly, or define
+your shams inline in your test file. Sham also provides a helper function to
+load all files under the sham directory. To load all your shams in a Rails
+project you could add the following to your application.rb or test.rb file.
 
     config.after_initialize do
       Sham::Config.activate!
     end
 
 If you are not using Rails you can activate all of your shams by specifying a
-path under which your shams are defined. For instance, this command will load
-all Ruby files under the `/my/project/path/sham` directory and and all
-subdirectories.
+path. For instance, this command will load all Ruby files under the
+`/my/project/path/sham` directory.
 
     Sham::Config.activate!('/my/project/path')
 
-To enable all Shams in cucumber, add the following to your
-features/support/env.rb file:
+To enable all Shams in cucumber, modify your `features/support/env.rb` file.
 
     require 'sham'
     Sham::Config.activate!
 
-You can now "sham" your models and pass additional attributes at creation:
+You can now "sham" your models with thier default options, or pass additional
+attributes you would like to overwrite or add during creation.
 
     User.sham!
     User.sham!(:name => "New Name")
     User.sham!(:age => 23)
 
-You can use sham to build models without automatically saving them as well:
+You can use sham to build models without automatically saving using the `:build`
+option.
 
     user = User.sham!(:build, :name => "I have not been saved")
     user.save
@@ -53,7 +53,7 @@ You can use sham to build models without automatically saving them as well:
 ## RSpec Example
 
 Here is an example of testing validations on an ActiveRecord::Base class using
-Sham and RSpec.
+Sham and RSpec:
 
     # in app/models/item.rb
     class Item < ActiveRecord::Base
@@ -83,9 +83,42 @@ Sham and RSpec.
       end
     end
 
+## Parameter Shams
+
+You can also define shams for initializers that take parameters instead of
+attribute hashes. For example, if you had a `User` class:
+
+    # in lib/user.rb
+    class User
+      attr_accessor :first, :last
+
+      def initialize(first, last)
+        self.first = first
+        self.last = last
+      end
+    end
+
+You could create a paramter sham like this:
+
+    # in sham/user.rb
+    Sham.config(User) do |c|
+      c.parameters do
+        ['John', 'Doe']
+      end
+    end
+
+And invoke it like this:
+
+    User.sham!
+    User.sham!('Jane', 'Doe')
+
+Unlike attribute shams, if arguments are passed to a parameter sham, those
+arguments are the only ones passed to the constructor.
+
 ## Alternative Shams
 
-You can easily define alternative sham configurations:
+Sometimes you want more than one way to configure a factory object. Sham allows
+you to easily define alternative sham configurations like this:
 
     # in sham/item.rb
     Sham.config(Item, :small) do |c|
@@ -100,37 +133,48 @@ You can easily define alternative sham configurations:
       end
     end
 
-These can be invoked using:
+Alternative shams can be invoked by passing thier name into the `sham!` command.
 
     Item.sham!(:small, :quantity => 100)
     Item.sham!(:large, :build, :quantity => 0)
 
 ## Empty Shams
 
-You can easily define empty shams using the empty function:
+Sometimes you simply want to be able to sham an object without passing any
+default options. Sham makes this easy by providing an `empty` configuration.
 
     # in sham/user.rb
     Sham.config(User) do |c|
       c.empty
     end
 
-This can be invoked using:
+Empty configurations behave just like empty hashes. That means you can simply
+pass your own attributes in when shamming the class.
 
     User.sham!
+    User.sham!(:name => 'John Doe')
+
+For parameter based initializers you can create empty configurations using the
+`no_args` option.
+
+    Sham.config(User){ |c| c.no_args }
 
 ## Nested Shamming
 
-You can nest shammed models inside others:
+Sometimes you want one sham to be responsible for creating additional shams when
+it is initialized. For instance, a `LineItem` might require an `Item` to be
+considered a valid object. Sham makes this kind of nested sham very easy to
+configure, and allows you to overwrite the 'sub-object' during initialization.
 
     # in sham/line_item_sham.rb
     Sham.config(LineItem) do |c|
       c.attributes do
-        { :item => Sham::Base.new(Item) }
+        { :item => Sham::Nested.new(Item) }
       end
     end
 
-The nested shams will automatically be invoked and can be overridden during a
-sham call:
+The nested shams will automatically be invoked and can be overwritten during
+initialization:
 
     LineItem.sham!
     LineItem.sham!(:item => Item.sham!(:weight => 100))
@@ -150,6 +194,9 @@ will be available to child classes as well:
 
     Employee.sham!
 
+You can also define different shams for your subclasses instead of relying on
+the parent object.
+
 ## Reloading Shams with Spork
 
 [Spork](https://rubygems.org/gems/spork) is a great gem that creates a
@@ -162,12 +209,11 @@ reload your shams with Spork all you need to do is add a Sham::Config.activate!
 line to this block after you have re-loaded your models and controllers.
 
     Spork.each_run do
-      ActiveSupport::Dependencies.clear
-      ActiveRecord::Base.instantiate_observers
       Sham::Config.activate!
     end if Spork.using_spork?
 
 This change will cause sham to be re-loaded so that you can continue to use it
-with Spork.
+with Spork. If you take this approach it's important to remove the call to
+`Sham::Config.activate!` from your `test.rb` or `application.rb` file.
 
 ## Build Status [![Build Status](https://secure.travis-ci.org/panthomakos/sham.png)](http://travis-ci.org/panthomakos/sham)

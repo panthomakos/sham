@@ -10,19 +10,29 @@ module Sham
     def sham_config(name)
       if @sham_configs && @sham_configs.has_key?(name)
         @sham_configs[name]
-      else
+      elsif superclass.respond_to?(:sham_config)
         superclass.sham_config(name)
       end
     end
 
     def sham!(*args)
-      options = Sham::Util.extract_options!(args)
-      type = (args[0] == :build ? args[1] : args[0]) || :default
-      build = args[0] == :build || args[1] == :build
+      build = extract_build!(args)
+      type = extract_type!(args) || :default
+      build ||= extract_build!(args)
 
-      sham_config(type).object(self).options(options).sham(build)
+      sham_config(type).object(self).options(*args).sham(build == :build)
     end
 
     alias :sham_alternate! :sham!
+
+    private
+
+    def extract_build!(args)
+      args.shift if args.first == :build
+    end
+
+    def extract_type!(args)
+      args.shift if sham_config(args.first)
+    end
   end
 end

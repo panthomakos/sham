@@ -1,4 +1,4 @@
-require 'sham/base'
+require 'sham/nested'
 
 module Sham
   class Config
@@ -19,13 +19,12 @@ module Sham
 
       private
 
-
       def parse! value
         if value.is_a?(Array)
           value.map{ |k| parse!(k) }
         elsif value.is_a?(Hash)
           Hash.new value.map{ |k,v| [k, parse!(v)] }
-        elsif value.is_a?(Sham::Base)
+        elsif value.is_a?(Sham::Nested)
           value.sham!
         else
           value

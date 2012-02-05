@@ -1,6 +1,8 @@
 require 'sham/shammable'
 require 'sham/config/attributes'
+require 'sham/config/parameters'
 require 'sham/config/empty'
+require 'sham/config/no_args'
 
 module Sham
   class << self
@@ -28,8 +30,16 @@ module Sham
       @klass.add_sham_config(@name, Sham::Config::Attributes.new(config))
     end
 
+    def parameters(&config)
+      @klass.add_sham_config(@name, Sham::Config::Parameters.new(config))
+    end
+
     def empty
       @klass.add_sham_config(@name, Sham::Config::Empty.new)
+    end
+
+    def no_args
+      @klass.add_sham_config(@name, Sham::Config::NoArgs.new)
     end
   end
 end

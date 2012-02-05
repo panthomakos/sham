@@ -132,7 +132,7 @@ describe Sham::Config do
 
         Sham.config(parent) do |c|
           c.attributes do
-            { :child => Sham::Base.new(child) }
+            { :child => Sham::Nested.new(child) }
           end
         end
       end
@@ -149,5 +149,37 @@ describe Sham::Config do
         parent.sham!(:child => other_child)
       end
     end
+  end
+
+  it 'configures attribute shams' do
+    attributes = { :first => 'first', :last => 'last' }
+    Sham.config(parent) do |c|
+      c.attributes{ attributes }
+    end
+
+    parent.should_receive(:new).with(attributes)
+    parent.sham!
+  end
+
+  it 'configures empty shams' do
+    Sham.config(parent){ |c| c.empty }
+    parent.should_receive(:new).with({})
+    parent.sham!
+  end
+
+  it 'configures no arg shams' do
+    Sham.config(parent){ |c| c.no_args }
+    parent.should_receive(:new).with()
+    parent.sham!
+  end
+
+  it 'configures parameter shams' do
+    parameters = [:first, :second]
+    Sham.config(parent) do |c|
+      c.parameters{ parameters }
+    end
+
+    parent.should_receive(:new).with(*parameters)
+    parent.sham!
   end
 end
