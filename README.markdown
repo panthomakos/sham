@@ -140,6 +140,27 @@ Alternative sham configurations can be invoked by passing their name into the
     Item.sham!(:small, :quantity => 100)
     Item.sham!(:large, :build, :quantity => 0)
 
+## Assign Shams
+
+If you have configured mass-assignment protected attributes in Rails, or you
+would prefer your object to go through regular instance setters rather than the
+initializer, you can use the `assign` configuration.
+
+    # sham/user.rb
+    Sham.config(User) do |c|
+      c.assign do
+        { :name => 'John Doe' }
+      end
+    end
+
+When executing `User.sham!` all attributes will be assigned using the instance
+setters instead of the initializer. A `save` will also be called unless the
+`:build` parameters is used.
+
+    User.any_instance.should_receive(:name=).with('Jane Doe')
+    User.any_instance.should_receive(:save)
+    User.sham!(:name => 'Jane Doe')
+
 ## Empty Shams
 
 Sometimes you simply want to be able to sham an object without passing any
