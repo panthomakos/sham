@@ -1,4 +1,5 @@
 require 'sham/shammable'
+require 'sham/config/assign'
 require 'sham/config/attributes'
 require 'sham/config/parameters'
 require 'sham/config/empty'
@@ -24,6 +25,10 @@ module Sham
     def initialize klass, name
       @klass = klass
       @name = name
+    end
+
+    def assign(&config)
+      @klass.add_sham_config(@name, Sham::Config::Assign.new(config))
     end
 
     def attributes(&config)

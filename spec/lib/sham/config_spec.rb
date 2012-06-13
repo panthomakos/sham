@@ -151,6 +151,17 @@ describe Sham::Config do
     end
   end
 
+  it 'configures assign shams' do
+    Sham.config(parent) do |c|
+      c.assign{ { :first => 'first' } }
+    end
+
+    instance = stub
+    parent.stub(:new){ instance }
+    instance.should_receive(:first=).with('first')
+    parent.sham!.should == instance
+  end
+
   it 'configures attribute shams' do
     attributes = { :first => 'first', :last => 'last' }
     Sham.config(parent) do |c|
