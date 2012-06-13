@@ -158,7 +158,7 @@ describe Sham::Config do
 
     instance = stub
     parent.stub(:new){ instance }
-    instance.should_receive(:first=).with('first')
+    instance.should_receive(:public_send).with('first=', 'first')
     parent.sham!.should == instance
   end
 

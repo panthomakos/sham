@@ -20,12 +20,12 @@ describe Sham::Config::Assign do
   end
 
   it 'prioritizes passed options' do
-    instance.should_receive(:id=).with(2)
+    instance.should_receive(:public_send).with('id=', 2)
     config.options(:id => 2).sham
   end
 
   it 'merges passed options' do
-    instance.should_receive(:name=).with('A')
+    instance.should_receive(:public_send).with('name=', 'A')
     config.options(:name => 'A').sham
   end
 
