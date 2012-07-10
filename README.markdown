@@ -239,3 +239,5 @@ with Spork. If you take this approach it's important to remove the call to
 `Sham::Config.activate!` from your `test.rb` file.
 
 ## Build Status [![Build Status](https://secure.travis-ci.org/panthomakos/sham.png)](http://travis-ci.org/panthomakos/sham)
+
+## Code Quality [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/panthomakos/sham)
