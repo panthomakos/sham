@@ -1,9 +1,11 @@
 require 'sham/config/base'
-require 'sham/util'
+require 'sham/config/hash_options'
 
 module Sham
   class Config
     class Assign < Base
+      include HashOptions
+
       def initialize(config)
         @config = config
       end
@@ -20,16 +22,6 @@ module Sham
         end
 
         object
-      end
-
-      def options(*args)
-        @options = ::Sham::Util.extract_options!(args)
-
-        @config.call.each do |key, value|
-          @options[key] = parse!(value) unless @options.has_key?(key)
-        end
-
-        self
       end
 
       def args
