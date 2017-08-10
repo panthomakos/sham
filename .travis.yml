@@ -12,4 +12,3 @@ rvm:
   - jruby-19mode
   - jruby-head
   - rbx-3.84
-  - rbx-2.11
