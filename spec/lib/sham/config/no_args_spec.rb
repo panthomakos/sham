@@ -15,7 +15,7 @@ describe Sham::Config::NoArgs do
   let(:config){ subject.object(NoArgsTester) }
 
   it 'does not pass parameters by default' do
-    NoArgsTester.should_receive(:new).with()
+    NoArgsTester.should_receive(:new).with(no_args)
     config.options.sham
   end
 

@@ -144,7 +144,30 @@ describe Sham::Config do
       end
 
       it 'prefers passed options' do
-        other_child = stub
+        other_child = double
+        parent.should_receive(:create).with({ :child => other_child })
+        parent.sham!(:child => other_child)
+      end
+    end
+
+    context 'lazy shams' do
+      before do
+        parent.stub(:create)
+
+        Sham.config(parent) do |c|
+          c.attributes do
+            { :child => Sham::Lazy.new { child } }
+          end
+        end
+      end
+
+      it 'evaluates the block' do
+        parent.should_receive(:create).with({ :child => child })
+        parent.sham!
+      end
+
+      it 'prefers passed options' do
+        other_child = double
         parent.should_receive(:create).with({ :child => other_child })
         parent.sham!(:child => other_child)
       end
@@ -156,7 +179,7 @@ describe Sham::Config do
       c.assign{ { :first => 'first' } }
     end
 
-    instance = stub
+    instance = double
     parent.stub(:new){ instance }
     instance.should_receive(:public_send).with('first=', 'first')
     parent.sham!.should == instance
@@ -180,7 +203,7 @@ describe Sham::Config do
 
   it 'configures no arg shams' do
     Sham.config(parent){ |c| c.no_args }
-    parent.should_receive(:new).with()
+    parent.should_receive(:new).with(no_args)
     parent.sham!
   end
 

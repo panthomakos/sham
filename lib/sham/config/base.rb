@@ -1,4 +1,5 @@
 require 'sham/nested'
+require 'sham/lazy'
 
 module Sham
   class Config
@@ -20,14 +21,12 @@ module Sham
       private
 
       def parse! value
-        if value.is_a?(Array)
-          value.map{ |k| parse!(k) }
-        elsif value.is_a?(Hash)
-          Hash.new value.map{ |k,v| [k, parse!(v)] }
-        elsif value.is_a?(Sham::Nested)
-          value.sham!
-        else
-          value
+        case value
+        when Array then value.map{ |k| parse!(k) }
+        when Hash then value.map{ |k,v| [k, parse!(v)] }.to_h
+        when Sham::Nested then value.sham!
+        when Sham::Lazy then value.sham!
+        else value
         end
       end
     end

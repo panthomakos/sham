@@ -6,11 +6,11 @@ describe Sham::Config::Assign do
     class AssignTester; end
   end
 
-  let(:id){ stub }
+  let(:id){ double }
   let(:options){ { :id => id } }
   let(:subject){ described_class.new(lambda{ options }) }
   let(:config){ subject.object(AssignTester) }
-  let(:instance){ stub.as_null_object }
+  let(:instance){ double.as_null_object }
 
   before{ AssignTester.stub(:new){ instance } }
 

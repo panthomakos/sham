@@ -12,7 +12,7 @@ describe Sham::Config::Attributes do
     end
   end
 
-  let(:id){ stub }
+  let(:id){ double }
   let(:options){ { :id => id } }
   let(:subject){ described_class.new(lambda{ options }) }
   let(:config){ subject.object(AttributesTester) }

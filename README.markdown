@@ -200,6 +200,23 @@ during initialization:
     LineItem.sham!
     LineItem.sham!(:item => Item.sham!(:weight => 100))
 
+## Lazy Shams
+
+A more general form of Nested Sham is the Lazy Sham. Lazy Shams only evaluate
+their blocks if they are not overwritten.
+
+    # sham/line_item_sham.rb
+    Sham.config(LineItem) do |c|
+      c.attributes do
+        { :item_id => Sham::Lazy.new { Item.sham!.id } }
+      end
+    end
+
+The lazy shams will automatically be evaluated and can also be overwritten
+during initialization:
+
+    LineItem.sham!
+    LineItem.sham!(:item_id => Item.sham!(:weight => 100).id)
 
 ## Sham Inheritance
 

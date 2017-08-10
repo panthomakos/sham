@@ -13,8 +13,8 @@ describe Sham::Config::Parameters do
     end
   end
 
-  let(:first){ stub }
-  let(:last){ stub }
+  let(:first){ double }
+  let(:last){ double }
   let(:params){ [first, last] }
   let(:subject){ described_class.new(lambda{ params }) }
   let(:config){ subject.object(ParamTester) }
