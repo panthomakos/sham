@@ -40,19 +40,19 @@ describe Sham::Config::Assign do
   end
 
   it 'calls save if the instance responds to save' do
-    instance.stub(:respond_to?).with(:save){ true }
-    instance.should_receive(:save)
+    instance.stub(:respond_to?).with(:save!){ true }
+    instance.should_receive(:save!)
     config.options.sham
   end
 
   it 'does not call save on build' do
-    instance.should_recieve(:save).never
+    instance.should_recieve(:save!).never
     config.options.sham(true)
   end
 
   it 'does not call save if it does not respond to save' do
-    instance.stub(:respond_to?).with(:save){ false }
-    instance.should_receive(:save).never
+    instance.stub(:respond_to?).with(:save!){ false }
+    instance.should_receive(:save!).never
     config.options.sham
   end
 end

@@ -49,7 +49,7 @@ Sham can also create objects without automatically saving using the `:build`
 option.
 
     user = User.sham!(:build, :name => "I have not been saved")
-    user.save
+    user.save!
 
 ## RSpec Example
 
@@ -154,11 +154,11 @@ initializer, you can use the `assign` configuration.
     end
 
 When executing `User.sham!` all attributes will be assigned using the instance
-setters instead of the initializer. A `save` will also be called unless the
+setters instead of the initializer. A `save!` will also be called unless the
 `:build` parameters is used.
 
     User.any_instance.should_receive(:name=).with('Jane Doe')
-    User.any_instance.should_receive(:save)
+    User.any_instance.should_receive(:save!)
     User.sham!(:name => 'Jane Doe')
 
 ## Empty Shams
