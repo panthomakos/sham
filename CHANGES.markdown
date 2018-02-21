@@ -1,5 +1,7 @@
 # master (unreleased)
 
+# 2.0.0
+
 * Use `save!` instead of `save` for sham calls.
 
 # 1.2.0
