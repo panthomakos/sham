@@ -17,8 +17,8 @@ module Sham
           object.public_send("#{key}=", value)
         end
 
-        if !build && object.respond_to?(:save)
-          object.save
+        if !build && object.respond_to?(:save!)
+          object.save!
         end
 
         object
